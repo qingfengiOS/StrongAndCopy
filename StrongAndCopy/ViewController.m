@@ -8,7 +8,10 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()
+@interface ViewController () {
+    NSArray *_instanceArray;
+    NSMutableArray *_instanceMutableArray;
+}
 
 @property (nonatomic, strong) NSArray *strongArray;
 @property (nonatomic, copy) NSArray *copiedArray;
@@ -25,6 +28,10 @@
 
     [self array];
     [self mutableArray];
+    
+    
+    [self instanceVar];
+    [self instanceMutableVar];
 }
 
 - (void)array {
@@ -60,5 +67,41 @@
 
 }
 
+
+/**
+ 实例变量array
+ */
+- (void)instanceVar {
+    NSLog(@"-----%s-----",__func__);
+    NSMutableArray *array = @[@"1", @"2", @"3"].mutableCopy;
+    
+    _instanceArray = array;
+    NSLog(@"_instanceArray = %@",_instanceArray);
+
+    [array removeLastObject];//移除源数组，意外修改到了_instanceArray
+    NSLog(@"_instanceArray = %@",_instanceArray);
+    
+    /*
+     care:
+     由于_instanceArray是实例变量，默认的内存语义为strong; so，当把一个可变Array赋值给_instanceArray后（浅拷贝），当改变了原来的数组的时候会意外地修改到_instanceArray，这往往不是我们想要的结果
+     */
+    
+}
+
+/**
+ 实例变量MutableArray
+ */
+- (void)instanceMutableVar {
+    NSLog(@"-----%s-----",__func__);
+    NSMutableArray *array = [NSMutableArray arrayWithObjects:@"1",@"2",@"3",@"4", nil];
+    _instanceMutableArray = [array mutableCopy];//这里使用深浅拷贝 对结果影响巨大
+    
+    [array removeLastObject];//深拷贝不影响_instanceMutableArray；浅拷贝会导致意外修改_instanceMutableArray，浅拷贝是指针地址的拷贝
+    NSLog(@"_instanceMutableArray = %@",_instanceMutableArray);
+    
+    [_instanceMutableArray addObject:@"add"];
+    NSLog(@"_instanceMutableArray = %@",_instanceMutableArray);
+    
+}
 
 @end
